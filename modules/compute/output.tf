@@ -1,5 +1,5 @@
 output "instance_ip_addr_public" {
-  value = aws_eip.demo-eip.public_ip
+  value = aws_eip.HK-ECO-eip.public_ip
 }
 
 output "instance_ip_addr_private" {
