@@ -45,3 +45,17 @@ module "compute" {
   ec2_security_group_ids = [module.security.public_security_group_id]
   subnet_id              = module.networking.public_subnet_ids[0]
 }
+
+resource "aws_ecr_repository" "hk_eco_repo" {
+  name                 = "hk-eco-web-app" 
+  image_tag_mutability = "MUTABLE"
+
+  image_scanning_configuration {
+    scan_on_push = true 
+  }
+}
+
+output "ecr_url" {
+  value = aws_ecr_repository.hk_eco_repo.repository_url
+}
+
