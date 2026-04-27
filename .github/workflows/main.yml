@@ -1,9 +1,27 @@
-name: Deploy to Amazon ECR
+name: Build and Push Docker Image
 on:
   push:
     branches:
       - main
       - develop
+  pull_request:
+    branches:
+      - master
+      - develop
+
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version tag to build'
+        required: true
+        type: string
+  workflow_call:
+    inputs:
+      version:
+        description: 'Version tag to build'
+        required: true
+        type: string
+
 
 jobs:
   deploy:
@@ -11,6 +29,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: refs/tags/${{ inputs.version }}
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -28,20 +48,8 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: hk-eco-web-app
         run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:${{ inputs.version }} .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:${{ inputs.version }}
 
-      - name: Deploy to EC2
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.EC2_PUBLIC_IP }}
-          username: ec2-user
-          key: ${{ secrets.EC2_SSH_KEY }}
-          script: |
-            aws ecr get-login-password --region ap-southeast-1 | docker login --username AWS --password-stdin 541692464957.dkr.ecr.ap-southeast-1.amazonaws.com/hk-eco-web-app:latest
-          
-            docker pull 541692464957.dkr.ecr.ap-southeast-1.amazonaws.com/hk-eco-web-app:latest
-          
-            docker stop hk-eco-web || true
-            docker rm hk-eco-web || true
-            docker run -d --name hk-eco-web -p 80:80 541692464957.dkr.ecr.ap-southeast-1.amazonaws.com/hk-eco-web-app:latest
+      - name: Output image URI
+        run: echo "Image URI:${{ steps.login-ecr.outputs.registry }}/hk-eco-web-app:${{ inputs.version }}"  >>$GITHUB_OUTPUT
