@@ -24,7 +24,7 @@ on:
 
 env:
   AWS_REGION: ap-southeast-1
-  ECR_REGISTRY: 541692464957.dkr.ecr.ap-southeast-1.amazonaws.com/hk-eco-web-app
+  ECR_REGISTRY: 541692464957.dkr.ecr.ap-southeast-1.amazonaws.com
   ECR_REPOSITORY: hk-eco-web-app
 
 jobs:
@@ -50,8 +50,10 @@ jobs:
 
       - name: Build and Push to ECR
         run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:${{ inputs.version }} .
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:${{ inputs.version }}
+          docker build -t hk-eco-web-app:${{ inputs.version }} .
+          docker tag hk-eco-web-app:${{ inputs.version }} ${{env.ECR_REGISTRY}}/${{env.ECR_REPOSITORY}}:${{ inputs.version }}
+          docker push ${{env.ECR_REGISTRY}}/${{env.ECR_REPOSITORY}}:${{ inputs.version }}
 
       - name: Output image URI
-        run: echo "Image URI:541692464957.dkr.ecr.ap-southeast-1.amazonaws.com/hk-eco-web-app/hk-eco-web-app:${{ inputs.version }}"  >>$GITHUB_OUTPUT
+        run: |
+          echo "Image URI:${{env.ECR_REGISTRY}}/${{env.ECR_REPOSITORY}}:${{ inputs.version }}"  >>$GITHUB_OUTPUT
