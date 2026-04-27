@@ -22,7 +22,7 @@
           required: true
           type: string
           default: 'latest'
-          
+
   env:
     AWS_REGION: ap-southeast-1
     ECR_REGISTRY: 541692464957.dkr.ecr.ap-southeast-1.amazonaws.com
@@ -58,4 +58,4 @@
 
         - name: Output image URI
           run: |
-            echo "Image URI:${{env.ECR_REGISTRY}}/${{env.ECR_REPOSITORY}}:${{ inputs.version }}"  >>$GITHUB_OUTPUT
+            echo "Image URI=${{env.ECR_REGISTRY}}/${{env.ECR_REPOSITORY}}:${{ inputs.version }}"  >>$GITHUB_OUTPUT
