@@ -22,10 +22,15 @@ on:
         required: true
         type: string
 
+env:
+  AWS_REGION: ap-southeast-1
+  ECR_REGISTRY: 541692464957.dkr.ecr.ap-southeast-1.amazonaws.com/hk-eco-web-app
+  ECR_REPOSITORY: hk-eco-web-app
 
 jobs:
-  deploy:
+  build-and-push:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -44,12 +49,9 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v2
 
       - name: Build and Push to ECR
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: hk-eco-web-app
         run: |
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:${{ inputs.version }} .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:${{ inputs.version }}
 
       - name: Output image URI
-        run: echo "Image URI:${{ steps.login-ecr.outputs.registry }}/hk-eco-web-app:${{ inputs.version }}"  >>$GITHUB_OUTPUT
+        run: echo "Image URI:541692464957.dkr.ecr.ap-southeast-1.amazonaws.com/hk-eco-web-app/hk-eco-web-app:${{ inputs.version }}"  >>$GITHUB_OUTPUT
