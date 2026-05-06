@@ -4,10 +4,14 @@ resource "aws_instance" "demo-instance" {
   key_name               = var.key_name
   vpc_security_group_ids = var.ec2_security_group_ids
   subnet_id = var.subnet_id
+  iam_instance_profile = var.iam_instance_profile_name
+  user_data = templatefile("${path.module}/install_docker.sh", {})
   tags = {
-    Name = "HK ECO Instance"
+    Name = "HK-ECO-demo-instance"
   }
-}
+}  
+
 resource "aws_eip" "HK-ECO-eip" {
   instance = aws_instance.demo-instance.id
 }
+

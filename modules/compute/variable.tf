@@ -28,3 +28,9 @@ variable "ec2_security_group_ids" {
   type = list(string)
   nullable = false
 }
+variable "iam_instance_profile_name" {
+  type = string
+  description = "The name of the IAM instance profile to associate with the instance"
+  nullable = false
+}
+

@@ -42,3 +42,9 @@ variable "keypair_path" {
   type = string
   default = "./keypair/HK-ECO-key.pub"
 }
+
+variable "ecr_image_url" {
+  description = "From Image to ECR"
+  type        = string
+  default     = "541692464957.dkr.ecr.ap-southeast-1.amazonaws.com/hk-eco-web-app:v1.0.0"
+}

@@ -44,6 +44,8 @@ module "compute" {
   instance_type          = var.instance_type
   ec2_security_group_ids = [module.security.public_security_group_id]
   subnet_id              = module.networking.public_subnet_ids[0]
+  iam_instance_profile_name = aws_iam_instance_profile.ec2_profile.name
+
 }
 
 resource "aws_ecr_repository" "hk_eco_repo" {
@@ -55,7 +57,22 @@ resource "aws_ecr_repository" "hk_eco_repo" {
   }
 }
 
-output "ecr_url" {
-  value = aws_ecr_repository.hk_eco_repo.repository_url
+
+
+resource "aws_iam_role" "ec2_ecr_role" {
+  name = "ec2-ecr-role-auto"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{ Action = "sts:AssumeRole", Effect = "Allow", Principal = { Service = "ec2.amazonaws.com" } }]
+  })
 }
 
+resource "aws_iam_role_policy_attachment" "ecr_read" {
+  role       = aws_iam_role.ec2_ecr_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
+}
+
+resource "aws_iam_instance_profile" "ec2_profile" {
+  name = "ec2-ecr-profile-auto"
+  role = aws_iam_role.ec2_ecr_role.name
+}
